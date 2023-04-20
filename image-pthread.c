@@ -103,16 +103,13 @@ void *convolute_pth(void* i_data){
     long my_rank = args->rank;
     int thread_count = args->thread_count;
 
-    int row,pix,bit,span;
-    int start = (srcImage->height / thread_count) * my_rank + 1;
+    int row,pix,bit,span, start, end;
+    start = (srcImage->height / thread_count) * my_rank + 1;
     
-	// end = minimum((srcImage->height / thread_count) * (my_rank + 1), srcImage->height); 
+	end = minimum((srcImage->height / thread_count) * (my_rank + 1), srcImage->height); 
 	
-    int end = (srcImage->height / thread_count) * (my_rank + 1);
-    int endfr = minimum(end, srcImage->height);
-
     span=srcImage->bpp*srcImage->bpp;
-    for (row=start;row<=endfr;row++){
+    for (row=start;row<=end;row++){
         for (pix=0;pix<srcImage->width;pix++){
             for (bit=0;bit<srcImage->bpp;bit++){
                 destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithms[args->type]);
@@ -144,8 +141,8 @@ enum KernelTypes GetKernelType(char* type){
 //main:
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
 int main(int argc,char** argv){
-    // double t1,t2;
-	long t1, t2;
+    double t1,t2;
+	// long t1, t2;
 	// int num_threads = 16;
 
     stbi_set_flip_vertically_on_load(0); 
@@ -189,6 +186,6 @@ int main(int argc,char** argv){
     free(thread_handles);
     free(destImage.data);
     
-	printf("Took %ld seconds\n",t2-t1);
+	printf("Took %f seconds\n",t2-t1);
     return 0;
 }
